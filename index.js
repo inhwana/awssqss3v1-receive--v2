@@ -137,7 +137,9 @@ async function transcode(filename){
     // Transcoding Using FFMPEG
     ffmpeg(video)
     .outputOptions('-movflags frag_keyframe+empty_moov') // Used because MP4 does not work well with streams
-    .videoCodec('libx264')
+    .videoCodec('libx265')
+    .audioCodec('aac')
+    .videoBitrate('1000k')
     .format('mp4')
     .on('error', (err) => {
     console.error('Error:', err.message);
