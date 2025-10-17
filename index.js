@@ -221,8 +221,14 @@ async function transcode(filename){
 }
 
 
-main()
+//main()
+async function loop() {
+  while (true) {
+    await main();
+  }
+}
 
+loop();
 
 
 
