@@ -137,7 +137,7 @@ async function transcode(filename){
     // Transcoding Using FFMPEG
     ffmpeg(video)
     .outputOptions('-movflags frag_keyframe+empty_moov') // Used because MP4 does not work well with streams
-    .addOption('-preset', 'veryslow')
+    //.addOption('-preset', 'veryslow')
     .videoCodec('libx265')
     .audioCodec('aac')
     .videoBitrate('5000k')
