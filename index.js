@@ -171,6 +171,21 @@ async function transcode(videoId){
     const downloadpresignedURL = await S3Presigner.getSignedUrl(s3Client, command, {expiresIn: 3600} );
     res.json({url :downloadpresignedURL})*/
 
+
+
+
+    //Metadata with manny 
+    const updateResponse = await fetch(
+        `http://ec2-54-252-191-77.ap-southeast-2.compute.amazonaws.com:3000/videos/${videoId}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "queued", outputFileName: null }),
+        }
+      );
+
+
+
     // Delete Original Video    
     const data = await s3Client.send(new DeleteObjectCommand({
         Bucket: bucketName,
@@ -182,6 +197,9 @@ async function transcode(videoId){
     }catch (err) {
         console.log(err);
     }
+
+
+
 
 
 
@@ -238,6 +256,14 @@ async function transcode(videoId){
 //     await main();
 //   }
 // }
+
+
+
+
+
+
+
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
