@@ -222,12 +222,21 @@ async function transcode(filename){
 
 
 //main()
-async function loop() {
-  while (true) {
-    await main();
+// async function loop() {
+//   while (true) {
+//     await main();
+//   }
+// }
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
-}
-
+  
+  async function loop() {
+    while (true) {
+      await main();
+      await sleep(5000); // wait 5 seconds before polling again
+    }
+  }
 loop();
 
 
