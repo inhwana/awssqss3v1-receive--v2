@@ -8,7 +8,11 @@ const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 //SQS
 const SQS = require("@aws-sdk/client-sqs");
-const sqsQueueUrl = "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n10851879-test-queue";
+//const sqsQueueUrl = "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n10851879-test-queue";
+//New mannyinhwa sqsURL
+const sqsQueueUrl = "https://sqs.ap-southeast-2.amazonaws.com/901444280953/manny-inhwa-transcode-queue";
+
+
 
 const client = new SQS.SQSClient({
   region: "ap-southeast-2",
@@ -85,9 +89,15 @@ async function main() {
     // Retrieve the first message from the body
     console.log("Message contents:", Messages[0].Body);
     const body = JSON.parse(Messages[0].Body);
-    const filename = body.filename
-    console.log("Filename " +  filename)
-    await transcode(filename);
+    //const filename = body.filename
+    const videoId = body.videoId
+    const tasktype = body.taskType
+
+
+
+    //console.log("Filename " +  filename)
+    //await transcode(filename);
+    await transcode(videoId)
     // for (const message of data.Messages) {
     //   const body = JSON.parse(message.Body);
     //   const s3Key = body.s3Key;
@@ -109,15 +119,15 @@ async function main() {
 
 
 
-async function transcode(filename){
+async function transcode(videoId){
     // Get from S3
-    let transcodedkey = `transcoded${filename}`
+    let transcodedkey = `transcoded${videoId}`
     let response
     try {
         response = await s3Client.send(
             new S3.GetObjectCommand({
                 Bucket: bucketName,
-                Key: filename,
+                Key: videoId,
             }))
     const video = response.Body
 
@@ -140,7 +150,7 @@ async function transcode(filename){
     //.addOption('-preset', 'slow')
     .videoCodec('libx265')
     .audioCodec('aac')
-    .videoBitrate('5000k')
+    .videoBitrate('10000k')
     .format('mp4')
     .on('error', (err) => {
     console.error('Error:', err.message);
@@ -164,7 +174,7 @@ async function transcode(filename){
     // Delete Original Video    
     const data = await s3Client.send(new DeleteObjectCommand({
         Bucket: bucketName,
-        Key: filename
+        Key: videoId
     }));
     console.log("Success. Object deleted.", data);
     // Delete Original Video 
