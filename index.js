@@ -92,7 +92,7 @@ async function main() {
     //const filename = body.filename
     const videoId = body.videoId;
     const inputKey = body.storedFileName; 
-    console.log("the input key is:")
+    console.log("the input key is:" + inputKey)
     const tasktype = body.taskType;
 
 
