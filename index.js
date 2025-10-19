@@ -92,7 +92,7 @@ async function main() {
     //const filename = body.filename
     const videoId = body.videoId;
     const inputKey = body.storedFileName; 
-    //console.log("the input key is:" + inputKey)
+    console.log("the input key is:" + inputKey)
     const tasktype = body.taskType;
 
 
@@ -142,7 +142,7 @@ async function transcode(inputKey, videoId){
         client: s3Client,
         params: {
             Bucket: bucketName,
-            Key:transcodedkey,
+            Key: transcodedkey,
             Body: videostream,
             ContentType: 'video/mp4'
         }
