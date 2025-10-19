@@ -90,8 +90,9 @@ async function main() {
     console.log("Message contents:", Messages[0].Body);
     const body = JSON.parse(Messages[0].Body);
     //const filename = body.filename
-    const videoId = body.videoId + ".avi"
-    const tasktype = body.taskType
+    const videoId = body.videoId;
+    const inputKey = body.storedFileName; 
+    const tasktype = body.taskType;
 
 
 
@@ -119,26 +120,28 @@ async function main() {
 
 
 
-async function transcode(videoId){
+async function transcode(inputKey, videoId){
     // Get from S3
-    let transcodedkey = `transcoded${videoId}`
+    //let transcodedkey = `transcoded${videoId}`
     let response
     try {
         response = await s3Client.send(
             new S3.GetObjectCommand({
                 Bucket: bucketName,
-                Key: videoId,
+                Key: inputKey,
             }))
     const video = response.Body
 
     const videostream = new PassThrough()
+    let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
+
 
     //Creating Upload, uploading mp4 video
     const uploads3 = new Upload({
         client: s3Client,
         params: {
             Bucket: bucketName,
-            Key:transcodedkey,
+            Key:outputKey,
             Body: videostream,
             ContentType: 'video/mp4'
         }
@@ -174,26 +177,30 @@ async function transcode(videoId){
 
 
 
-    //Metadata with manny 
-    const updateResponse = await fetch(
-        //`http://ec2-54-252-191-77.ap-southeast-2.compute.amazonaws.com:3000/videos/${videoId}/status`,
-        `http://manny-metadata-balancer-1636907737.ap-southeast-2.elb.amazonaws.com:3000/videos/${videoId}/status`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "queued", outputFileName: null }),
-        }
-      );
+    
 
 
 
     // Delete Original Video    
     const data = await s3Client.send(new DeleteObjectCommand({
+        
         Bucket: bucketName,
         Key: videoId
     }));
     console.log("Success. Object deleted.", data);
-    // Delete Original Video 
+    // Delete Original Video
+
+    //Metadata with manny 
+    await fetch(
+        //`http://ec2-54-252-191-77.ap-southeast-2.compute.amazonaws.com:3000/videos/${videoId}/status`,
+        `http://manny-metadata-balancer-1636907737.ap-southeast-2.elb.amazonaws.com:3000/videos/${videoId}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "transcoded", outputFileName: outputKey }),
+        }
+      );
+     
 
     }catch (err) {
         console.log(err);
