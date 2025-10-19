@@ -26,7 +26,7 @@ const client = new SQS.SQSClient({
 
 //AWS
 const bucketName = 'n10851879-test'
-s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
+const s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
 
 
 
@@ -99,6 +99,7 @@ async function main() {
 
     //console.log("Filename " +  filename)
     //await transcode(filename);
+
     await transcode(inputKey, videoId)
     // for (const message of data.Messages) {
     //   const body = JSON.parse(message.Body);
@@ -190,8 +191,14 @@ async function transcode(inputKey, videoId){
     console.log("Success. Object deleted.", data);
     // Delete Original Video
 
+
+
+
+
+    
+
     //Metadata with manny 
-    await fetch(
+    const metadataUpdateResponse = await fetch(
         //`http://ec2-54-252-191-77.ap-southeast-2.compute.amazonaws.com:3000/videos/${videoId}/status`,
         `http://manny-metadata-balancer-1636907737.ap-southeast-2.elb.amazonaws.com:3000/videos/${videoId}/status`,
         {
@@ -200,7 +207,10 @@ async function transcode(inputKey, videoId){
           body: JSON.stringify({ status: "transcoded", outputFileName: outputKey }),
         }
       );
-     
+     if(!metadataUpdateResponse.ok)
+     {
+        throw new Error("Failed to update video metadata status")
+     }
 
     }catch (err) {
         console.log(err);
