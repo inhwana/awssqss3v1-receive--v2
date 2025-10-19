@@ -21,7 +21,7 @@ const client = new SQS.SQSClient({
 
 //AWS
 const bucketName = 'n10851879-test'
-s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
+const s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
 
 
 
@@ -30,6 +30,7 @@ s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
 
 async function main() {
 
+   
   try{
     const receiveCommand = new SQS.ReceiveMessageCommand({
       MaxNumberOfMessages: 1,
@@ -55,14 +56,18 @@ async function main() {
     console.log("Message contents:", Messages[0].Body);
     const body = JSON.parse(Messages[0].Body);
     //const filename = body.filename
-    const videoId = body.videoId + ".avi"
-    const tasktype = body.taskType
+    const videoId = body.videoId;
+    const inputKey = body.storedFileName; 
+    //console.log("the input key is:" + inputKey)
+    //const tasktype = body.taskType;
 
 
 
     //console.log("Filename " +  filename)
     //await transcode(filename);
-    await transcode(videoId)
+  
+        await transcode(inputKey, videoId)
+        await new Promise(resolve => setTimeout(resolve, 20000));
     // for (const message of data.Messages) {
     //   const body = JSON.parse(message.Body);
     //   const s3Key = body.s3Key;
@@ -74,8 +79,8 @@ async function main() {
    });
    const deleteResponse = await client.send(deleteCommand);
    console.log("Deleting the message", deleteResponse);
-  }catch{
-    //Error Message
+  }catch(error){ 
+    console.log(error)
   }  
 }
 
@@ -84,26 +89,29 @@ async function main() {
 
 
 
-async function transcode(videoId){
+async function transcode(inputKey, videoId){
     // Get from S3
-    let transcodedkey = `transcoded${videoId}`
+    //let transcodedkey = `transcoded${inputKey}`
     let response
     try {
         response = await s3Client.send(
             new S3.GetObjectCommand({
                 Bucket: bucketName,
-                Key: videoId,
+                Key: inputKey,
             }))
     const video = response.Body
 
     const videostream = new PassThrough()
+    let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
+    console.log("Transcoding outputkey: " + outputKey)
+
 
     //Creating Upload, uploading mp4 video
     const uploads3 = new Upload({
         client: s3Client,
         params: {
             Bucket: bucketName,
-            Key:transcodedkey,
+            Key: outputKey,
             Body: videostream,
             ContentType: 'video/mp4'
         }
@@ -129,26 +137,35 @@ async function transcode(videoId){
 
 
 
-    //Metadata with manny 
-    const updateResponse = await fetch(
-        //`http://ec2-54-252-191-77.ap-southeast-2.compute.amazonaws.com:3000/videos/${videoId}/status`,
-        `http://manny-metadata-balancer-1636907737.ap-southeast-2.elb.amazonaws.com:3000/videos/${videoId}/status`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "queued", outputFileName: null }),
-        }
-      );
+    
 
 
 
     // Delete Original Video    
     const data = await s3Client.send(new DeleteObjectCommand({
         Bucket: bucketName,
-        Key: videoId
+        Key: inputKey
     }));
     console.log("Success. Object deleted.", data);
-    // Delete Original Video 
+    // Delete Original Video
+
+
+
+    
+
+    //Metadata with manny 
+    const metadataUpdateResponse = await fetch(
+        `http://manny-metadata-balancer-1636907737.ap-southeast-2.elb.amazonaws.com:3000/videos/${videoId}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "transcoded", outputFileName: outputKey }),
+        }
+      );
+     if(!metadataUpdateResponse.ok)
+     {
+        throw new Error("Failed to update video metadata status")
+     }
 
     }catch (err) {
         console.log(err);
@@ -156,13 +173,6 @@ async function transcode(videoId){
 
 
 }
-
-
-
-
-
-
-
 
 
 
@@ -177,4 +187,3 @@ function sleep(ms) {
     }
   }
 loop();
-
