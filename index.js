@@ -92,15 +92,16 @@ async function main() {
     //const filename = body.filename
     const videoId = body.videoId;
     const inputKey = body.storedFileName; 
-    console.log("the input key is:" + inputKey)
+    //console.log("the input key is:" + inputKey)
     const tasktype = body.taskType;
 
 
 
     //console.log("Filename " +  filename)
     //await transcode(filename);
-
-    await transcode(inputKey, videoId)
+  
+        await transcode(inputKey, videoId)
+        await new Promise(resolve => setTimeout(resolve, 5000));
     // for (const message of data.Messages) {
     //   const body = JSON.parse(message.Body);
     //   const s3Key = body.s3Key;
@@ -112,8 +113,8 @@ async function main() {
    });
    const deleteResponse = await client.send(deleteCommand);
    console.log("Deleting the message", deleteResponse);
-  }catch{
-    //Error Message
+  }catch(error){ 
+    console.log(error)
   }  
 }
 
