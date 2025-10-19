@@ -101,7 +101,7 @@ async function main() {
     //await transcode(filename);
   
         await transcode(inputKey, videoId)
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 20000));
     // for (const message of data.Messages) {
     //   const body = JSON.parse(message.Body);
     //   const s3Key = body.s3Key;
