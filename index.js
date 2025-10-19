@@ -186,11 +186,11 @@ async function transcode(inputKey, videoId){
 
 
     // Delete Original Video    
-    const data = await s3Client.send(new DeleteObjectCommand({
-        Bucket: bucketName,
-        Key: inputKey
-    }));
-    console.log("Success. Object deleted.", data);
+    // const data = await s3Client.send(new DeleteObjectCommand({
+    //     Bucket: bucketName,
+    //     Key: inputKey
+    // }));
+    // console.log("Success. Object deleted.", data);
     // Delete Original Video
 
 
