@@ -123,7 +123,7 @@ async function main() {
 
 async function transcode(inputKey, videoId){
     // Get from S3
-    let transcodedkey = `transcoded${inputKey}`
+    //let transcodedkey = `transcoded${inputKey}`
     let response
     try {
         response = await s3Client.send(
@@ -134,7 +134,7 @@ async function transcode(inputKey, videoId){
     const video = response.Body
 
     const videostream = new PassThrough()
-    //let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
+    let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
 
 
     //Creating Upload, uploading mp4 video
@@ -142,7 +142,7 @@ async function transcode(inputKey, videoId){
         client: s3Client,
         params: {
             Bucket: bucketName,
-            Key: transcodedkey,
+            Key: outputKey,
             Body: videostream,
             ContentType: 'video/mp4'
         }
@@ -197,7 +197,7 @@ async function transcode(inputKey, videoId){
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "transcoded", outputFileName: transcodedkey }),
+          body: JSON.stringify({ status: "transcoded", outputFileName: outputKey }),
         }
       );
      
