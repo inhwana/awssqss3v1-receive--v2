@@ -1,10 +1,10 @@
 //const express = require('express')
 const ffmpeg = require('fluent-ffmpeg')
-const S3 = require("@aws-sdk/client-s3");
+
 const S3Presigner = require("@aws-sdk/s3-request-presigner");
 const { Upload } = require("@aws-sdk/lib-storage")
 const { PassThrough } = require('stream');
-const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { DeleteObjectCommand, S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 
 //SQS
 const SQS = require("@aws-sdk/client-sqs");
@@ -26,7 +26,7 @@ const client = new SQS.SQSClient({
 
 //AWS
 const bucketName = 'n10851879-test'
-const s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
+const s3Client = new S3Client({ region: 'ap-southeast-2'})
 
 
 
@@ -129,14 +129,14 @@ async function transcode(inputKey, videoId){
     let response
     try {
         response = await s3Client.send(
-            new S3.GetObjectCommand({
+            new GetObjectCommand({
                 Bucket: bucketName,
                 Key: inputKey,
             }))
     const video = response.Body
 
     const videostream = new PassThrough()
-    let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
+    let outputKey = inputKey.replace(/\.[^/.]+$/, ".mp4");
     console.log("Transcoding outputkey: " + outputKey)
 
 
