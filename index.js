@@ -92,7 +92,7 @@ async function main() {
     //const filename = body.filename
     const videoId = body.videoId;
     const inputKey = body.storedFileName; 
-    console.log("the input key is:" + inputKey)
+    //console.log("the input key is:" + inputKey)
     const tasktype = body.taskType;
 
 
@@ -123,7 +123,7 @@ async function main() {
 
 async function transcode(inputKey, videoId){
     // Get from S3
-    //let transcodedkey = `transcoded${videoId}`
+    let transcodedkey = `transcoded${inputKey}`
     let response
     try {
         response = await s3Client.send(
@@ -134,7 +134,7 @@ async function transcode(inputKey, videoId){
     const video = response.Body
 
     const videostream = new PassThrough()
-    let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
+    //let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
 
 
     //Creating Upload, uploading mp4 video
@@ -142,7 +142,7 @@ async function transcode(inputKey, videoId){
         client: s3Client,
         params: {
             Bucket: bucketName,
-            Key:outputKey,
+            Key:transcodedkey,
             Body: videostream,
             ContentType: 'video/mp4'
         }
@@ -184,9 +184,8 @@ async function transcode(inputKey, videoId){
 
     // Delete Original Video    
     const data = await s3Client.send(new DeleteObjectCommand({
-        
         Bucket: bucketName,
-        Key: videoId
+        Key: inputKey
     }));
     console.log("Success. Object deleted.", data);
     // Delete Original Video
@@ -198,7 +197,7 @@ async function transcode(inputKey, videoId){
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "transcoded", outputFileName: outputKey }),
+          body: JSON.stringify({ status: "transcoded", outputFileName: transcodedkey }),
         }
       );
      
