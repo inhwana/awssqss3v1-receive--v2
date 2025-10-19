@@ -90,7 +90,7 @@ async function main() {
     console.log("Message contents:", Messages[0].Body);
     const body = JSON.parse(Messages[0].Body);
     //const filename = body.filename
-    const videoId = body.videoId
+    const videoId = body.videoId + ".avi"
     const tasktype = body.taskType
 
 
