@@ -176,7 +176,8 @@ async function transcode(videoId){
 
     //Metadata with manny 
     const updateResponse = await fetch(
-        `http://ec2-54-252-191-77.ap-southeast-2.compute.amazonaws.com:3000/videos/${videoId}/status`,
+        //`http://ec2-54-252-191-77.ap-southeast-2.compute.amazonaws.com:3000/videos/${videoId}/status`,
+        `http://manny-metadata-balancer-1636907737.ap-southeast-2.elb.amazonaws.com:3000/videos/${videoId}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
