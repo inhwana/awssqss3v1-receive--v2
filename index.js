@@ -98,7 +98,7 @@ async function main() {
 
     //console.log("Filename " +  filename)
     //await transcode(filename);
-    await transcode(videoId)
+    await transcode(inputKey, videoId)
     // for (const message of data.Messages) {
     //   const body = JSON.parse(message.Body);
     //   const s3Key = body.s3Key;
