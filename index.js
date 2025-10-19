@@ -136,6 +136,7 @@ async function transcode(inputKey, videoId){
 
     const videostream = new PassThrough()
     let outputKey = inputKey.replace(/.[^/.]+$/, ".mp4");
+    console.log("Transcoding outputkey: " + outputKey)
 
 
     //Creating Upload, uploading mp4 video
