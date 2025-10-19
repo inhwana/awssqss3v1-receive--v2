@@ -21,7 +21,7 @@ const client = new SQS.SQSClient({
 
 //AWS
 const bucketName = 'n10851879-test'
-const s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
+s3Client = new S3.S3Client({ region: 'ap-southeast-2'})
 
 
 
